@@ -30,10 +30,11 @@ export class PostServices {
         }
     }
 
-    static async postBatches(coordinates: ICoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
+    static async postMultiple(coordinates: ICoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
+        //todo: post batches if it is supported
 
-        //post batches
-        //const batches: ICoord[][] =[];
+        // const batchSize: number = 5;
+        // const batches: ICoord[][] = [];
         // for (let i = 0; i < coordinates.length; i += batchSize) {
         //     batches.push(coordinates.slice(i, i + batchSize));
         // }
@@ -47,11 +48,11 @@ export class PostServices {
         //             throw error; // Rethrow the error if needed
         //         }
         //     }
+
         //     // Add delay between batches
         //     await new Promise(resolve => setTimeout(resolve, delay));
+        // }));
 
-
-        //working code
         for (const coord of coordinates) {
             try {
                 await this.postSingle(endpoint, candidateId, coord);
@@ -62,5 +63,4 @@ export class PostServices {
             }
         }
     }
-}
-
+};

@@ -8,7 +8,7 @@ export class PolyanetPostService extends PostServices {
         try {
             logger.info("calling Polyanet post")
 
-            await super.postBatches(polyCoords, delay, appConfig.endpoints.polyanets, candidateId);
+            await super.postMultiple(polyCoords, delay, appConfig.endpoints.polyanets, candidateId);
         } catch (error) {
             throw error;
         }

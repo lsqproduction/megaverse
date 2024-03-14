@@ -16,7 +16,6 @@ export class PostServices {
         coordinate: ICoord
     ): Promise<void> {
         const postData = this.constructPostData(candidateId, coordinate)
-        console.log("postData- post single", postData);
         try {
             await fetch(endpoint, {
                 method: "POST",
@@ -31,26 +30,37 @@ export class PostServices {
         }
     }
 
-    static async postBatchs(coordinates: ICoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
-        const batchSize: number = 10;
-        const batches: ICoord[][] = [];
-        for (let i = 0; i < coordinates.length; i += batchSize) {
-            batches.push(coordinates.slice(i, i + batchSize));
-        };
+    static async postBatches(coordinates: ICoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
 
-        //post by batch
-        console.log("batches...", batches)
-        for (const batch of batches) {
+        //post batches
+        //const batches: ICoord[][] =[];
+        // for (let i = 0; i < coordinates.length; i += batchSize) {
+        //     batches.push(coordinates.slice(i, i + batchSize));
+        // }
+
+        // // Process each batch in parallel
+        // await Promise.all(batches.map(async batch => {
+        //     for (const coord of batch) {
+        //         try {
+        //             await this.postSingle(endpoint, candidateId, coord);
+        //         } catch (error) {
+        //             throw error; // Rethrow the error if needed
+        //         }
+        //     }
+        //     // Add delay between batches
+        //     await new Promise(resolve => setTimeout(resolve, delay));
+
+
+        //working code
+        for (const coord of coordinates) {
             try {
-                console.log("batch", batch);
-                await Promise.all(batch.map(coordinates => {
-                    console.log("polyposting", coordinates);
-                    this.postSingle(endpoint, candidateId, coordinates)
-                }));
+                await this.postSingle(endpoint, candidateId, coord);
                 await new Promise(resolve => setTimeout(resolve, delay));
+
             } catch (error) {
                 throw error;
             }
         }
     }
 }
+

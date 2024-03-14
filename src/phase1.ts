@@ -10,7 +10,7 @@ class Phase1 {
             const { polyCoords } = await MapService.getCoords(goalMap);
             const { candidateId } = appConfig;
 
-            console.log(polyCoords);
+
             await PolyanetPostService.post(polyCoords, 2000, candidateId)
 
         } catch (error) {

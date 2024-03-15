@@ -1,13 +1,22 @@
-import { ICoord, IData, IGoal } from "../interfaces/interfaces";
+import { ICoord, IData, IGoal, ISoloonCoord, ISoloonData, IComethCoord, IComethData } from "../interfaces/interfaces";
 
 export class PostServices {
-    private static constructPostData(candidateId: string, coordinate: ICoord) {
-        const data: IData = {
-            candidateId,
-            row: coordinate.row,
-            column: coordinate.column
+    private static constructPostData(candidateId: string, coordinate: ICoord | ISoloonCoord | IComethCoord) {
+
+        const { row, column } = coordinate;
+
+        if ("color" in coordinate) {
+            //check for ISoloonCoord
+            const { color } = coordinate;
+            return { candidateId, row, column, color };
+        } else if ("direction" in coordinate) {
+            //check for IComethCoord
+            const { direction } = coordinate;
+            return { candidateId, row, column, direction };
+        } else {
+            //this is ICoord
+            return { candidateId, row, column };
         }
-        return data;
     }
 
     static async postSingle(
@@ -30,28 +39,7 @@ export class PostServices {
         }
     }
 
-    static async postMultiple(coordinates: ICoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
-        //todo: post batches if it is supported
-
-        // const batchSize: number = 5;
-        // const batches: ICoord[][] = [];
-        // for (let i = 0; i < coordinates.length; i += batchSize) {
-        //     batches.push(coordinates.slice(i, i + batchSize));
-        // }
-
-        // // Process each batch in parallel
-        // await Promise.all(batches.map(async batch => {
-        //     for (const coord of batch) {
-        //         try {
-        //             await this.postSingle(endpoint, candidateId, coord);
-        //         } catch (error) {
-        //             throw error; // Rethrow the error if needed
-        //         }
-        //     }
-
-        //     // Add delay between batches
-        //     await new Promise(resolve => setTimeout(resolve, delay));
-        // }));
+    static async postMultiple(coordinates: ICoord[] | ISoloonCoord[] | IComethCoord[], delay: number, endpoint: string, candidateId: string): Promise<void> {
 
         for (const coord of coordinates) {
             try {

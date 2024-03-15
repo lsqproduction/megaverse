@@ -2,5 +2,8 @@ import pino from "pino";
 
 export const logger = pino({
     name: "megaverse",
-    level: "debug"
+    level: "info",
+    transport: {
+        target: "pino-pretty"
+    }
 })

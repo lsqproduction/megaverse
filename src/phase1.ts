@@ -1,24 +1,25 @@
 import { appConfig } from "./appConfig";
 import { MapService } from "./services/mapService";
-import { PolyanetPostService } from "./services/PolyanetPostService";
+import { MorphServices } from "./services/morphServices";
+import { logger } from "./utils/logger";
 
 class Phase1 {
 
     static async run(): Promise<void> {
         try {
+            logger.info("starting phase1");
             //fetch the goal map
             const goalMap = await MapService.fetchGoalMap();
 
-            //Get the coordinates of the polyants
-            const { polyCoords } = MapService.getCoords(goalMap);
+            //Get the coordinates of the polyanets
+            const { polyBodys } = MapService.getBodys(goalMap);
 
+            const { candidateId, endpoints } = appConfig;
 
-            const { candidateId } = appConfig;
-
-            await PolyanetPostService.post(polyCoords, 1000, candidateId)
+            await MorphServices.postMultiple(polyBodys, 1000, endpoints.polyanets, candidateId);
 
         } catch (error) {
-            console.error("Error in posting polyanets", error);
+            logger.error("Error in posting polyanets", error);
             throw error;
         }
     }

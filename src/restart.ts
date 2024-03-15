@@ -1,12 +1,19 @@
-import { MapService } from "./services/mapService";
+import { MorphServices } from "./services/morphServices";
 import { logger } from "./utils/logger";
+import { preFetch } from "./utils/preFetch";
 
 class Restart {
     static async run(): Promise<void> {
         try {
             logger.info("restarting");
-            const goalMap = await MapService.fetchGoalMap();
-            await MapService.restart(goalMap);
+
+            //preload the information needed to restart the map
+            const { polyBodys, soloonBodys, comethBodys, candidateId, endpoints } = await preFetch();
+
+            await MorphServices.deleteMultiple(polyBodys, 1000, endpoints.polyanets, candidateId);
+            await MorphServices.deleteMultiple(soloonBodys, 1000, endpoints.soloons, candidateId);
+            await MorphServices.deleteMultiple(comethBodys, 1000, endpoints.comeths, candidateId);
+
         } catch (error) {
             logger.error(`Error while running program clear map: ${error}`);
 

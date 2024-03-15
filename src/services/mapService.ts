@@ -1,7 +1,7 @@
-import { IGoal, ICoord, IData, ISoloonCoord, IComethCoord, ISoloonData, IComethData } from "../interfaces/interfaces"
+import { IGoal, IBody, ISoloonBody, IComethBody } from "../interfaces/interfaces"
 import { appConfig } from "../appConfig"
-import { CoordType, Color, Direction } from "../enums/enums";
-
+import { BodyType, Color, Direction } from "../enums/enums";
+import { logger } from "../utils/logger";
 
 export class MapService {
     //get the goal map
@@ -16,79 +16,47 @@ export class MapService {
             return await res.json() as IGoal;
 
         } catch (error) {
+            logger.error("failed to fetch goal map>>>", error);
             throw error;
         }
     }
 
 
-    //get the row, column coordinates from goal
-    static getCoords(goalMap: IGoal): { polyCoords: ICoord[], soloonCoords: ISoloonCoord[], comethCoords: IComethCoord[] } {
+    //get the body data for the fetch()
+    static getBodys(goalMap: IGoal): { polyBodys: IBody[], soloonBodys: ISoloonBody[], comethBodys: IComethBody[] } {
         try {
-            const { POLYANET, SOLOON, COMETH } = CoordType;
-            const polyCoords: ICoord[] = [];
-            const soloonCoords: ISoloonCoord[] = [];
-            const comethCoords: IComethCoord[] = [];
+            const { POLYANET, SOLOON, COMETH } = BodyType;
+            const polyBodys: IBody[] = [];
+            const soloonBodys: ISoloonBody[] = [];
+            const comethBodys: IComethBody[] = [];
 
             goalMap.goal.forEach((row, i) => {
 
-                row.forEach((coordType, j) => {
+                row.forEach((bodyType, j) => {
 
-                    if (coordType === POLYANET) {
-                        polyCoords.push({ row: i, column: j });
+                    if (bodyType === POLYANET) {
+                        polyBodys.push({ row: i, column: j });
                     } else {
                         //check for soloon and cometh
-                        const type = coordType.split("_")[1];
+                        const type = bodyType.split("_")[1];
                         if (type === SOLOON) {
-                            const colorValue = coordType.split("_")[0] as keyof typeof Color;
+                            const colorValue = bodyType.split("_")[0] as keyof typeof Color;
                             const color = Color[colorValue];
-                            soloonCoords.push({ row: i, column: j, color })
-                        };
+                            soloonBodys.push({ row: i, column: j, color })
+                        }
                         if (type === COMETH) {
-                            const directionValue = coordType.split("_")[0] as keyof typeof Direction;
+                            const directionValue = bodyType.split("_")[0] as keyof typeof Direction;
                             const direction = Direction[directionValue];
-                            comethCoords.push({ row: i, column: j, direction });
+                            comethBodys.push({ row: i, column: j, direction });
                         }
                     }
                 });
             });
 
-            return { polyCoords, soloonCoords, comethCoords };
+            return { polyBodys, soloonBodys, comethBodys };
         } catch (error) {
+            logger.error("failed to get the body data of the astro item>>>", error);
             throw error;
         }
-    }
-
-
-
-    //todo: restart map
-    static async restart(goalMap: IGoal): Promise<void> {
-        const { endpoints } = appConfig;
-
-        async function deleteObj(endpoint: string, data: IData): Promise<Response> {
-            return (fetch(endpoint, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            }))
-        };
-
-        for (let i = 0; i < goalMap.goal.length; i++) {
-            for (let j = 0; j < goalMap.goal[i].length; j++) {
-                const data: IData = {
-                    candidateId: appConfig.candidateId,
-                    row: i,
-                    column: j
-                };
-                const coordType = goalMap.goal[i][j];
-                if (goalMap.goal[i][j] === CoordType.POLYANET) {
-                    console.log("coordtype", goalMap.goal[i][j]);
-                    const res = await deleteObj(endpoints.polyanets, data);
-                    console.log("Deletion success!", data, res.status);
-                };
-                await new Promise(resolve => setTimeout(resolve, 500));
-            };
-        };
     }
 }

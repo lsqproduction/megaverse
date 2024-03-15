@@ -8,33 +8,20 @@ export interface AppConfig {
     comeths: string
   }
 }
-
 export interface IGoal {
   goal: string[][];
 }
 
 
-export interface ICoord {
+export interface IBody {
   row: number;
   column: number;
 }
 
-export interface IData extends ICoord {
-  candidateId: string;
-}
-
-export interface ISoloonCoord extends ICoord {
+export interface ISoloonBody extends IBody {
   color: Color;
 }
 
-export interface IComethCoord extends ICoord {
-  direction: Direction;
-}
-
-export interface ISoloonData extends IData {
-  color: Color;
-}
-
-export interface IComethData extends IData {
+export interface IComethBody extends IBody {
   direction: Direction;
 }

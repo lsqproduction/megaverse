@@ -1,25 +1,22 @@
-import { appConfig } from "./appConfig";
-import { MapService } from "./services/mapService";
-import { PostServices } from "./services/postServices";
+import { MorphServices } from "./services/morphServices";
+import { logger } from "./utils/logger";
+import { preFetch } from "./utils/preFetch";
 
 class Phase2 {
 
     static async run(): Promise<void> {
         try {
-            //fetch the goal map
-            const goalMap = await MapService.fetchGoalMap();
+            logger.info("starting phase 2");
 
-            //Get the coordinates of the polyants
-            const { polyCoords, soloonCoords, comethCoords } = MapService.getCoords(goalMap);
+            //preload the information needed to start posting
+            const { polyBodys, soloonBodys, comethBodys, candidateId, endpoints } = await preFetch();
 
-            const { candidateId, endpoints } = appConfig;
-
-            await PostServices.postMultiple(polyCoords, 1000, endpoints.polyanets, candidateId);
-            await PostServices.postMultiple(soloonCoords, 1000, endpoints.soloons, candidateId);
-            await PostServices.postMultiple(comethCoords, 1000, endpoints.comeths, candidateId);
+            await MorphServices.postMultiple(polyBodys, 1000, endpoints.polyanets, candidateId);
+            await MorphServices.postMultiple(soloonBodys, 1000, endpoints.soloons, candidateId);
+            await MorphServices.postMultiple(comethBodys, 1000, endpoints.comeths, candidateId);
 
         } catch (error) {
-            console.error("Error in posting all the astro goodies", error);
+            logger.error("Error in posting all the astro goodies", error);
             throw error;
         }
     }

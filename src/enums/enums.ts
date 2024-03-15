@@ -1,4 +1,4 @@
-enum CoordType {
+enum BodyType {
   POLYANET = "POLYANET",
   SOLOON = "SOLOON",
   COMETH = "COMETH"
@@ -18,4 +18,4 @@ enum Direction {
   LEFT = 'left'
 }
 
-export { CoordType, Color, Direction };
+export { BodyType, Color, Direction };
